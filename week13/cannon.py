@@ -330,7 +330,7 @@ clock = pg.time.Clock()
 mgr = Manager(n_targets=3)
 
 while not done:
-    clock.tick(15)
+    clock.tick(30)
     screen.fill(BLACK)
 
     done = mgr.process(pg.event.get(), screen)
