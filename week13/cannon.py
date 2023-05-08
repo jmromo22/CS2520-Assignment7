@@ -54,12 +54,12 @@ class Shell(GameObject):
                 self.velocity[i] = -int(self.velocity[i] * refl_ort)
                 self.velocity[1-i] = int(self.velocity[1-i] * refl_par)
 
-    def move(self, time=1, grav=0):
+    def move(self, time=1, gravity=0):
         '''
         Moves the ball according to it's velocity and time step.
         Changes the ball's velocity due to gravitational force.
         '''
-        self.velocity[1] += grav
+        self.velocity[1] += gravity
         for i in range(2):
             self.coord[i] += time * self.velocity[i]
         self.check_corners()
@@ -95,12 +95,12 @@ class Cannon(GameObject):
         '''
         self.active = True
 
-    def gain(self, inc=2):
+    def gain(self, increment=2):
         '''
         Increases current gun charge power.
         '''
         if self.active and self.pow < self.max_pow:
-            self.pow += inc
+            self.pow += increment
 
     def strike(self):
         '''
@@ -163,7 +163,7 @@ class Target(GameObject):
         Checks whether the shell bumps into target.
         '''
         dist = sum([(self.coord[i] - shell.coord[i])**2 for i in range(2)])**0.5
-        min_dist = self.radius + shell.rad
+        min_dist = self.radius + shell.radius
         return dist <= min_dist
 
     def draw(self, screen):
@@ -218,12 +218,13 @@ class Manager:
     '''
     Class that manages events' handling, ball's motion and collision, target creation, etc.
     '''
-    def __init__(self, num_of_targets=1):
+    def __init__(self, num_of_targets=1, gravity=2):
         self.shells = []
         self.gun = Cannon()
         self.targets = []
         self.score_table = ScoreTable()
         self.num_of_targets = num_of_targets
+        self.gravity = gravity
         self.new_mission()
 
     def new_mission(self):
@@ -301,14 +302,14 @@ class Manager:
 
     def move(self):
         '''
-        Runs balls' and gun's movement method, removes dead balls.
+        Runs shells' and gun's movement method, removes dead shells.
         '''
-        dead_balls = []
-        for i, ball in enumerate(self.shells):
-            ball.move(grav=2)
-            if not ball.is_alive:
-                dead_balls.append(i)
-        for i in reversed(dead_balls):
+        dead_shells = []
+        for i, shell in enumerate(self.shells):
+            shell.move(gravity=self.gravity)
+            if not shell.is_alive:
+                dead_shells.append(i)
+        for i in reversed(dead_shells):
             self.shells.pop(i)
         for i, target in enumerate(self.targets):
             target.move()
