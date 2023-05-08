@@ -8,6 +8,7 @@ pg.font.init()
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+DARK_GREY = (50, 50, 50)
 RED = (255, 0, 0)
 
 SCREEN_SIZE = (800, 600)
@@ -389,6 +390,8 @@ class Manager:
         '''
         Runs shell', gun's, targets' and score table's drawing method.
         '''
+        screen.fill(DARK_GREY) # fill background
+
         for shell in self.shells:
             shell.draw(screen)
         for target in self.targets:
