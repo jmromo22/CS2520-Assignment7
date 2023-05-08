@@ -222,7 +222,7 @@ class Manager:
         self.balls = []
         self.gun = Cannon()
         self.targets = []
-        self.score_t = ScoreTable()
+        self.score_table = ScoreTable()
         self.n_targets = n_targets
         self.new_mission()
 
@@ -231,10 +231,10 @@ class Manager:
         Adds new targets.
         '''
         for i in range(self.n_targets):
-            self.targets.append(MovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
-                30 - max(0, self.score_t.score()))))
-            self.targets.append(Target(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
-                30 - max(0, self.score_t.score()))))
+            self.targets.append(MovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_table.score())),
+                30 - max(0, self.score_table.score()))))
+            self.targets.append(Target(rad=randint(max(1, 30 - 2*max(0, self.score_table.score())),
+                30 - max(0, self.score_table.score()))))
 
 
     def process(self, events, screen):
@@ -275,7 +275,7 @@ class Manager:
             elif event.type == pg.MOUSEBUTTONUP:
                 if event.button == 1:
                     self.balls.append(self.gun.strike())
-                    self.score_t.b_used += 1
+                    self.score_table.b_used += 1
         return done
 
     def draw(self, screen):
@@ -287,7 +287,7 @@ class Manager:
         for target in self.targets:
             target.draw(screen)
         self.gun.draw(screen)
-        self.score_t.draw(screen)
+        self.score_table.draw(screen)
 
     def move(self):
         '''
@@ -317,7 +317,7 @@ class Manager:
                     targets_c.append(j)
         targets_c.sort()
         for j in reversed(targets_c):
-            self.score_t.t_destr += 1
+            self.score_table.t_destr += 1
             self.targets.pop(j)
 
 def main() -> None:
