@@ -338,16 +338,16 @@ class Manager:
         Checks whether balls bump into targets, sets balls' alive trigger.
         '''
         collisions = []
-        targets_c = []
+        targets_collide = []
         for i, ball in enumerate(self.shells):
             for j, target in enumerate(self.targets):
                 if target.check_collision(ball):
                     collisions.append([i, j])
-                    targets_c.append(j)
-        targets_c.sort()
-        for j in reversed(targets_c):
+                    targets_collide.append(j)
+        targets_collide.sort()
+        for target in reversed(targets_collide):
             self.score_table.target_destroyed += 1
-            self.targets.pop(j)
+            self.targets.pop(target)
 
 def main() -> None:
     screen = pg.display.set_mode(SCREEN_SIZE)
