@@ -320,22 +320,24 @@ class Manager:
             self.score_t.t_destr += 1
             self.targets.pop(j)
 
+def main() -> None:
+    screen = pg.display.set_mode(SCREEN_SIZE)
+    pg.display.set_caption("The gun of Khiryanov")
 
-screen = pg.display.set_mode(SCREEN_SIZE)
-pg.display.set_caption("The gun of Khiryanov")
+    done = False
+    clock = pg.time.Clock()
 
-done = False
-clock = pg.time.Clock()
+    mgr = Manager(n_targets=3)
 
-mgr = Manager(n_targets=3)
+    while not done:
+        clock.tick(30)
+        screen.fill(BLACK)
 
-while not done:
-    clock.tick(30)
-    screen.fill(BLACK)
+        done = mgr.process(pg.event.get(), screen)
 
-    done = mgr.process(pg.event.get(), screen)
+        pg.display.flip()
 
-    pg.display.flip()
+    pg.quit()
 
-
-pg.quit()
+if __name__ == "__main__":
+    main()
