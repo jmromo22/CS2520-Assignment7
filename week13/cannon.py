@@ -337,8 +337,8 @@ class Manager:
         '''
         Checks whether balls bump into targets, sets balls' alive trigger.
         '''
-        collisions = []
-        targets_collide = []
+        collisions: list[list[int]] = []
+        targets_collide: list[int] = []
         for i, ball in enumerate(self.shells):
             for j, target in enumerate(self.targets):
                 if target.check_collision(ball):
