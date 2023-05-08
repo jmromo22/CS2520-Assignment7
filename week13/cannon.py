@@ -364,9 +364,9 @@ class Manager:
                     self.switch_shell_type()
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]:
-            self.gun.move(-5)
+            self.gun.move(-10)
         if keys[pg.K_RIGHT] or keys[pg.K_d]:
-            self.gun.move(5)
+            self.gun.move(10)
 
         return done
     
