@@ -130,6 +130,15 @@ class Cannon(GameObject):
         '''
         Draws the gun on the screen.
         '''
+        # draw base of the tank
+        cannon_base_pos = self.coord
+        tank_base_width, tank_base_height = 50, 30
+        pg.draw.rect(screen, (255, 255, 255), 
+                     (cannon_base_pos[0]-tank_base_width//2, cannon_base_pos[1], 
+                      tank_base_width, tank_base_height)
+        )
+
+        # draw gun
         gun_shape = []
         vec_1 = np.array([int(5*np.cos(self.angle - np.pi/2)), int(5*np.sin(self.angle - np.pi/2))])
         vec_2 = np.array([int(self.pow*np.cos(self.angle)), int(self.pow*np.sin(self.angle))])
@@ -140,6 +149,9 @@ class Cannon(GameObject):
         gun_shape.append((gun_pos - vec_1).tolist())
         pg.draw.polygon(screen, self.color, gun_shape)
 
+        # draw tank cannon cover
+        tank_ball_radius = 15
+        pg.draw.circle(screen, (200, 200, 200), (cannon_base_pos[0], cannon_base_pos[1]+5), tank_ball_radius)
 
 class Target(GameObject):
     '''
