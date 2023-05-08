@@ -95,7 +95,7 @@ class Cannon(GameObject):
         '''
         self.active = True
 
-    def gain(self, increment=2):
+    def gain(self, increment=1):
         '''
         Increases current gun charge power.
         '''
