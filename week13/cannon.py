@@ -189,6 +189,12 @@ class MovingTargets(Target):
         self.coord[0] += self.x_velocity
         self.coord[1] += self.y_velocity
 
+        # if hit border, change velocity
+        if self.coord[0] + self.radius > SCREEN_SIZE[0] or self.coord[0] - self.radius < 0:
+            self.x_velocity *= -1
+        if self.coord[1] + self.radius > SCREEN_SIZE[1] or self.coord[1] - self.radius < 0:
+            self.y_velocity *= -1
+
 
 class ScoreTable:
     '''
