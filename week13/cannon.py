@@ -96,6 +96,30 @@ class PowerfulShell(Shell):
         if self.alive_timer > self.alive_max:
             self.is_alive = False
 
+class BigShell(Shell):
+    """
+    Big Shell but high gravity
+    """
+    def __init__(self, coord, velocity, radius=50, color=None, alive_max=10):
+        '''
+        Constructor method. Initializes shell's parameters and initial values.
+        '''
+        super().__init__(coord, velocity, radius, color)
+        self.alive_max = alive_max * 5
+        self.alive_timer = 0
+
+    def move(self, time=1, gravity=2, gravity_multiplier=2):
+        '''
+        Moves the shell according to it's velocity and time step.
+        Changes the shell's velocity due to gravitational force.
+        '''
+        self.velocity[1] += gravity * gravity_multiplier
+        for i in range(2):
+            self.coord[i] += time * self.velocity[i]
+        self.alive_timer += 1
+        self.check_corners()
+        if self.alive_timer > self.alive_max:
+            self.is_alive = False
 
 class Cannon(GameObject):
     '''
@@ -269,7 +293,7 @@ class Manager:
     Class that manages events' handling, shell's motion and collision, target creation, etc.
     '''
     def __init__(self, num_of_targets=1, gravity=2):
-        self.shell_types = [Shell, PowerfulShell]
+        self.shell_types = [Shell, PowerfulShell, BigShell]
         self.shell_type_index = 0
         self.shell_type = self.shell_types[0]
         self.shells = []
