@@ -266,19 +266,28 @@ class MovingTargets(Target):
             self.y_velocity *= -1
 
 class CircularTargets(Target):
-    def __init__(self, coord=None, color=None, radius=20):
+    def __init__(self, coord=None, color=None, radius=20, circular_radius=None, velocity=None, clockwise=None):
         super().__init__(coord, color, radius)
         self.x = self.coord[0]
         self.y = self.coord[1]
-        self.circle_radius = randint(15, 30)
+        if circular_radius is None:
+            self.circular_radius = randint(20, 50)
+        else:
+            self.circular_radius = circular_radius
         self.target_angle = 1
-        self.speed = randint(1, 4)
-        self.clockwise = randint(0, 1) == 1
+        if velocity is None:
+            self.velocity = randint(1, 4)
+        else:
+            self.velocity = velocity
+        if clockwise is None:
+            self.clockwise = randint(0, 1) == 1
+        else:
+            self.clockwise = clockwise
     
     def move(self):
-        self.coord[0] = self.x + math.cos(math.pi * self.target_angle) * self.circle_radius
-        self.coord[1] = self.y + math.sin(math.pi * self.target_angle) * self.circle_radius
-        self.target_angle += self.speed * 0.03 * (1 if self.clockwise else -1)
+        self.coord[0] = self.x + math.cos(math.pi * self.target_angle) * self.circular_radius
+        self.coord[1] = self.y + math.sin(math.pi * self.target_angle) * self.circular_radius
+        self.target_angle += self.velocity * 0.03 * (1 if self.clockwise else -1)
 
 class ScoreTable:
     '''
