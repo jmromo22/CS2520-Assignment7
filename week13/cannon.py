@@ -218,19 +218,19 @@ class Manager:
     '''
     Class that manages events' handling, ball's motion and collision, target creation, etc.
     '''
-    def __init__(self, n_targets=1):
+    def __init__(self, num_of_targets=1):
         self.balls = []
         self.gun = Cannon()
         self.targets = []
         self.score_table = ScoreTable()
-        self.n_targets = n_targets
+        self.num_of_targets = num_of_targets
         self.new_mission()
 
     def new_mission(self):
         '''
         Adds new targets.
         '''
-        for i in range(self.n_targets):
+        for i in range(self.num_of_targets):
             self.targets.append(MovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_table.score())),
                 30 - max(0, self.score_table.score()))))
             self.targets.append(Target(rad=randint(max(1, 30 - 2*max(0, self.score_table.score())),
@@ -327,7 +327,7 @@ def main() -> None:
     done = False
     clock = pg.time.Clock()
 
-    mgr = Manager(n_targets=3)
+    mgr = Manager(num_of_targets=3)
 
     while not done:
         clock.tick(30)
