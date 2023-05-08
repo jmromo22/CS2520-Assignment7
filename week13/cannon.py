@@ -1,5 +1,6 @@
 import numpy as np
 import pygame as pg
+import math
 from random import randint, gauss
 
 pg.init()
@@ -263,6 +264,20 @@ class MovingTargets(Target):
         if self.coord[1] + self.radius > SCREEN_SIZE[1] or self.coord[1] - self.radius < 0:
             self.y_velocity *= -1
 
+class CircularTargets(Target):
+    def __init__(self, coord=None, color=None, radius=20):
+        super().__init__(coord, color, radius)
+        self.x = self.coord[0]
+        self.y = self.coord[1]
+        self.circle_radius = randint(15, 30)
+        self.target_angle = 1
+        self.speed = randint(1, 4)
+        self.clockwise = randint(0, 1) == 1
+    
+    def move(self):
+        self.coord[0] = self.x + math.cos(math.pi * self.target_angle) * self.circle_radius
+        self.coord[1] = self.y + math.sin(math.pi * self.target_angle) * self.circle_radius
+        self.target_angle += self.speed * 0.03 * (1 if self.clockwise else -1)
 
 class ScoreTable:
     '''
@@ -309,20 +324,16 @@ class Manager:
         '''
         Adds new targets.
         '''
+        target_types = [Target, MovingTargets, CircularTargets]
         for _ in range(self.num_of_targets):
             # as score goes up, the radius of the target shrink
-            self.targets.append(
-                MovingTargets(radius=randint(
-                    max(1, 30 - 2 * max(0, self.score_table.score())),
-                    30 - max(0, self.score_table.score()))
+            for target_type in target_types:
+                self.targets.append(
+                    target_type(radius=randint(
+                        max(1, 30 - 2 * max(0, self.score_table.score())),
+                        30 - max(0, self.score_table.score()))
+                    )
                 )
-            )   
-            self.targets.append(
-                Target(radius=randint(
-                    max(1, 30 - 2 * max(0, self.score_table.score())),
-                    30 - max(0, self.score_table.score()))
-                )
-            )
 
 
     def process(self, events, screen):
