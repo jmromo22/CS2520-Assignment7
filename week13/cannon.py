@@ -77,7 +77,7 @@ class Cannon(GameObject):
     '''
     Cannon class. Manages it's renderring, movement and striking.
     '''
-    def __init__(self, coord=[30, SCREEN_SIZE[1]//2], angle=0, max_pow=50, min_pow=10, color=RED):
+    def __init__(self, coord=[SCREEN_SIZE[0]//2, SCREEN_SIZE[1]-30], angle=0, max_pow=50, min_pow=10, color=RED):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
         '''
@@ -119,12 +119,12 @@ class Cannon(GameObject):
         '''
         self.angle = np.arctan2(target_pos[1] - self.coord[1], target_pos[0] - self.coord[0])
 
-    def move(self, inc):
+    def move(self, increment):
         '''
-        Changes vertical position of the gun.
+        Changes horizontal position of the gun.
         '''
-        if (self.coord[1] > 30 or inc > 0) and (self.coord[1] < SCREEN_SIZE[1] - 30 or inc < 0):
-            self.coord[1] += inc
+        if (self.coord[0] > 30 or increment > 0) and (self.coord[0] < SCREEN_SIZE[0] - 30 or increment < 0):
+            self.coord[0] += increment
 
     def draw(self, screen):
         '''
@@ -282,9 +282,9 @@ class Manager:
                     self.shells.append(self.gun.strike())
                     self.score_table.shell_used += 1
         keys = pg.key.get_pressed()
-        if keys[pg.K_UP]:
+        if keys[pg.K_LEFT]:
             self.gun.move(-5)
-        if keys[pg.K_DOWN]:
+        if keys[pg.K_RIGHT]:
             self.gun.move(5)
 
         return done
