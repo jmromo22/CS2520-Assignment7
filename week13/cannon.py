@@ -101,6 +101,13 @@ class Cannon(GameObject):
     '''
     Cannon class. Manages it's renderring, movement and striking.
     '''
+    shell_type_dict = {
+        0: (100, 100, 100),
+        1: (150, 150, 150),
+        2: (200, 200, 200),
+        3: (255, 255, 255)
+    }
+
     def __init__(self, coord=[SCREEN_SIZE[0]//2, SCREEN_SIZE[1]-30], angle=0, max_pow=50, min_pow=10, color=RED):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
@@ -150,7 +157,7 @@ class Cannon(GameObject):
         if (self.coord[0] > 30 or increment > 0) and (self.coord[0] < SCREEN_SIZE[0] - 30 or increment < 0):
             self.coord[0] += increment
 
-    def draw(self, screen):
+    def draw(self, screen, shell_type_index):
         '''
         Draws the gun on the screen.
         '''
@@ -175,7 +182,8 @@ class Cannon(GameObject):
 
         # draw tank cannon cover
         tank_ball_radius = 15
-        pg.draw.circle(screen, (200, 200, 200), (cannon_base_pos[0], cannon_base_pos[1]+5), tank_ball_radius)
+        ball_color = self.shell_type_dict[shell_type_index]
+        pg.draw.circle(screen, ball_color, (cannon_base_pos[0], cannon_base_pos[1]+5), tank_ball_radius)
 
 class Target(GameObject):
     '''
@@ -350,7 +358,7 @@ class Manager:
             shell.draw(screen)
         for target in self.targets:
             target.draw(screen)
-        self.gun.draw(screen)
+        self.gun.draw(screen, self.shell_type_index)
         self.score_table.draw(screen)
 
     def move(self):
