@@ -300,9 +300,9 @@ class Manager:
                     self.shells.append(self.gun.strike())
                     self.score_table.shell_used += 1
         keys = pg.key.get_pressed()
-        if keys[pg.K_LEFT]:
+        if keys[pg.K_LEFT] or keys[pg.K_a]:
             self.gun.move(-5)
-        if keys[pg.K_RIGHT]:
+        if keys[pg.K_RIGHT] or keys[pg.K_d]:
             self.gun.move(5)
 
         return done
