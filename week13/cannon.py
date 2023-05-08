@@ -273,11 +273,6 @@ class Manager:
         for event in events:
             if event.type == pg.QUIT:
                 done = True
-            elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_UP:
-                    self.gun.move(-5)
-                elif event.key == pg.K_DOWN:
-                    self.gun.move(5)
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     self.gun.activate()
@@ -285,6 +280,12 @@ class Manager:
                 if event.button == 1:
                     self.balls.append(self.gun.strike())
                     self.score_table.b_used += 1
+        keys = pg.key.get_pressed()
+        if keys[pg.K_UP]:
+            self.gun.move(-5)
+        if keys[pg.K_DOWN]:
+            self.gun.move(5)
+
         return done
 
     def draw(self, screen):
