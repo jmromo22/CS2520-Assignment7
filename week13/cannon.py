@@ -72,6 +72,30 @@ class Shell(GameObject):
         '''
         pg.draw.circle(screen, self.color, self.coord, self.radius)
 
+class PowerfulShell(Shell):
+    """
+    Powerful Shell where it isn't effected by gravity
+    """
+    def __init__(self, coord, velocity, radius=20, color=None, alive_max=10):
+        '''
+        Constructor method. Initializes shell's parameters and initial values.
+        '''
+        super().__init__(coord, velocity, radius, color)
+        self.alive_max = alive_max * 5
+        self.alive_timer = 0
+
+    def move(self, time=1, gravity=0):
+        '''
+        Moves the shell according to it's velocity and time step.
+        Changes the shell's velocity due to gravitational force.
+        '''
+        for i in range(2):
+            self.coord[i] += time * self.velocity[i]
+        self.alive_timer += 1
+        self.check_corners()
+        if self.alive_timer > self.alive_max:
+            self.is_alive = False
+
 
 class Cannon(GameObject):
     '''
@@ -102,13 +126,13 @@ class Cannon(GameObject):
         if self.active and self.pow < self.max_pow:
             self.pow += increment
 
-    def strike(self):
+    def strike(self, shell_type):
         '''
         Creates shell, according to gun's direction and current charge power.
         '''
         vel = self.pow
         angle = self.angle
-        shell = Shell(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
+        shell = shell_type(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
         self.pow = self.min_pow
         self.active = False
         return shell
@@ -237,7 +261,11 @@ class Manager:
     Class that manages events' handling, shell's motion and collision, target creation, etc.
     '''
     def __init__(self, num_of_targets=1, gravity=2):
+        self.shell_types = [Shell, PowerfulShell]
+        self.shell_type_index = 0
+        self.shell_type = self.shell_types[0]
         self.shells = []
+
         self.gun = Cannon()
         self.targets = []
         self.score_table = ScoreTable()
@@ -297,8 +325,11 @@ class Manager:
                     self.gun.activate()
             elif event.type == pg.MOUSEBUTTONUP:
                 if event.button == 1:
-                    self.shells.append(self.gun.strike())
+                    self.shells.append(self.gun.strike(self.shell_type))
                     self.score_table.shell_used += 1
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    self.switch_shell_type()
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]:
             self.gun.move(-5)
@@ -306,6 +337,10 @@ class Manager:
             self.gun.move(5)
 
         return done
+    
+    def switch_shell_type(self):
+        self.shell_type_index = (self.shell_type_index + 1) % len(self.shell_types)
+        self.shell_type = self.shell_types[self.shell_type_index]
 
     def draw(self, screen):
         '''
@@ -356,7 +391,7 @@ def main() -> None:
     done = False
     clock = pg.time.Clock()
 
-    mgr = Manager(num_of_targets=3)
+    mgr = Manager(num_of_targets=3, gravity=2)
 
     while not done:
         clock.tick(30)
