@@ -241,6 +241,10 @@ class Target(GameObject):
         Draws the target on the screen
         '''
         pg.draw.circle(screen, self.color, self.coord, self.radius)
+        pg.draw.circle(screen, WHITE, self.coord, self.radius * 0.7)
+        pg.draw.circle(screen, self.color, self.coord, self.radius * 0.5)
+        pg.draw.circle(screen, WHITE, self.coord, self.radius * 0.3)
+
 
     def move(self):
         """
