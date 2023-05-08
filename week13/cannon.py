@@ -230,11 +230,20 @@ class Manager:
         '''
         Adds new targets.
         '''
-        for i in range(self.num_of_targets):
-            self.targets.append(MovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_table.score())),
-                30 - max(0, self.score_table.score()))))
-            self.targets.append(Target(rad=randint(max(1, 30 - 2*max(0, self.score_table.score())),
-                30 - max(0, self.score_table.score()))))
+        for _ in range(self.num_of_targets):
+            # as score goes up, the radius of the target shrink
+            self.targets.append(
+                MovingTargets(rad=randint(
+                    max(1, 30 - 2 * max(0, self.score_table.score())),
+                    30 - max(0, self.score_table.score()))
+                )
+            )   
+            self.targets.append(
+                Target(rad=randint(
+                    max(1, 30 - 2 * max(0, self.score_table.score())),
+                    30 - max(0, self.score_table.score()))
+                )
+            )
 
 
     def process(self, events, screen):
