@@ -182,12 +182,12 @@ class Target(GameObject):
 class MovingTargets(Target):
     def __init__(self, coord=None, color=None, radius=30):
         super().__init__(coord, color, radius)
-        self.vx = randint(-2, +2)
-        self.vy = randint(-2, +2)
+        self.x_velocity = randint(-2, +2)
+        self.y_velocity = randint(-2, +2)
     
     def move(self):
-        self.coord[0] += self.vx
-        self.coord[1] += self.vy
+        self.coord[0] += self.x_velocity
+        self.coord[1] += self.y_velocity
 
 
 class ScoreTable:
