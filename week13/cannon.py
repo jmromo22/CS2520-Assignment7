@@ -28,16 +28,16 @@ class Shell(GameObject):
     '''
     The ball class. Creates a ball, controls it's movement and implement it's rendering.
     '''
-    def __init__(self, coord, vel, rad=20, color=None):
+    def __init__(self, coord, velocity, radius=20, color=None):
         '''
         Constructor method. Initializes ball's parameters and initial values.
         '''
         self.coord = coord
-        self.vel = vel
+        self.velocity = velocity
         if color == None:
             color = rand_color()
         self.color = color
-        self.rad = rad
+        self.radius = radius
         self.is_alive = True
 
     def check_corners(self, refl_ort=0.8, refl_par=0.9):
@@ -45,32 +45,32 @@ class Shell(GameObject):
         Reflects ball's velocity when ball bumps into the screen corners. Implemetns inelastic rebounce.
         '''
         for i in range(2):
-            if self.coord[i] < self.rad:
-                self.coord[i] = self.rad
-                self.vel[i] = -int(self.vel[i] * refl_ort)
-                self.vel[1-i] = int(self.vel[1-i] * refl_par)
-            elif self.coord[i] > SCREEN_SIZE[i] - self.rad:
-                self.coord[i] = SCREEN_SIZE[i] - self.rad
-                self.vel[i] = -int(self.vel[i] * refl_ort)
-                self.vel[1-i] = int(self.vel[1-i] * refl_par)
+            if self.coord[i] < self.radius:
+                self.coord[i] = self.radius
+                self.velocity[i] = -int(self.velocity[i] * refl_ort)
+                self.velocity[1-i] = int(self.velocity[1-i] * refl_par)
+            elif self.coord[i] > SCREEN_SIZE[i] - self.radius:
+                self.coord[i] = SCREEN_SIZE[i] - self.radius
+                self.velocity[i] = -int(self.velocity[i] * refl_ort)
+                self.velocity[1-i] = int(self.velocity[1-i] * refl_par)
 
     def move(self, time=1, grav=0):
         '''
         Moves the ball according to it's velocity and time step.
         Changes the ball's velocity due to gravitational force.
         '''
-        self.vel[1] += grav
+        self.velocity[1] += grav
         for i in range(2):
-            self.coord[i] += time * self.vel[i]
+            self.coord[i] += time * self.velocity[i]
         self.check_corners()
-        if self.vel[0]**2 + self.vel[1]**2 < 2**2 and self.coord[1] > SCREEN_SIZE[1] - 2*self.rad:
+        if self.velocity[0]**2 + self.velocity[1]**2 < 2**2 and self.coord[1] > SCREEN_SIZE[1] - 2*self.radius:
             self.is_alive = False
 
     def draw(self, screen):
         '''
         Draws the ball on appropriate surface.
         '''
-        pg.draw.circle(screen, self.color, self.coord, self.rad)
+        pg.draw.circle(screen, self.color, self.coord, self.radius)
 
 
 class Cannon(GameObject):
@@ -145,32 +145,32 @@ class Target(GameObject):
     '''
     Target class. Creates target, manages it's rendering and collision with a ball event.
     '''
-    def __init__(self, coord=None, color=None, rad=30):
+    def __init__(self, coord=None, color=None, radius=30):
         '''
         Constructor method. Sets coordinate, color and radius of the target.
         '''
         if coord == None:
-            coord = [randint(rad, SCREEN_SIZE[0] - rad), randint(rad, SCREEN_SIZE[1] - rad)]
+            coord = [randint(radius, SCREEN_SIZE[0] - radius), randint(radius, SCREEN_SIZE[1] - radius)]
         self.coord = coord
-        self.rad = rad
+        self.radius = radius
 
         if color == None:
             color = rand_color()
         self.color = color
 
-    def check_collision(self, ball):
+    def check_collision(self, shell):
         '''
-        Checks whether the ball bumps into target.
+        Checks whether the shell bumps into target.
         '''
-        dist = sum([(self.coord[i] - ball.coord[i])**2 for i in range(2)])**0.5
-        min_dist = self.rad + ball.rad
+        dist = sum([(self.coord[i] - shell.coord[i])**2 for i in range(2)])**0.5
+        min_dist = self.radius + shell.rad
         return dist <= min_dist
 
     def draw(self, screen):
         '''
         Draws the target on the screen
         '''
-        pg.draw.circle(screen, self.color, self.coord, self.rad)
+        pg.draw.circle(screen, self.color, self.coord, self.radius)
 
     def move(self):
         """
@@ -180,8 +180,8 @@ class Target(GameObject):
         pass
 
 class MovingTargets(Target):
-    def __init__(self, coord=None, color=None, rad=30):
-        super().__init__(coord, color, rad)
+    def __init__(self, coord=None, color=None, radius=30):
+        super().__init__(coord, color, radius)
         self.vx = randint(-2, +2)
         self.vy = randint(-2, +2)
     
@@ -194,24 +194,24 @@ class ScoreTable:
     '''
     Score table class.
     '''
-    def __init__(self, t_destr=0, b_used=0):
-        self.t_destr = t_destr
-        self.b_used = b_used
+    def __init__(self, target_destroyed=0, shell_used=0):
+        self.target_destroyed = target_destroyed
+        self.shell_used = shell_used
         self.font = pg.font.SysFont("dejavusansmono", 25)
 
     def score(self):
         '''
         Score calculation method.
         '''
-        return self.t_destr - self.b_used
+        return self.target_destroyed - self.shell_used
 
     def draw(self, screen):
-        score_surf = []
-        score_surf.append(self.font.render("Destroyed: {}".format(self.t_destr), True, WHITE))
-        score_surf.append(self.font.render("Balls used: {}".format(self.b_used), True, WHITE))
-        score_surf.append(self.font.render("Total: {}".format(self.score()), True, RED))
+        score_surface = []
+        score_surface.append(self.font.render("Destroyed: {}".format(self.target_destroyed), True, WHITE))
+        score_surface.append(self.font.render("Balls used: {}".format(self.shell_used), True, WHITE))
+        score_surface.append(self.font.render("Total: {}".format(self.score()), True, RED))
         for i in range(3):
-            screen.blit(score_surf[i], [10, 10 + 30*i])
+            screen.blit(score_surface[i], [10, 10+30*i])
 
 
 class Manager:
@@ -219,7 +219,7 @@ class Manager:
     Class that manages events' handling, ball's motion and collision, target creation, etc.
     '''
     def __init__(self, num_of_targets=1):
-        self.balls = []
+        self.shells = []
         self.gun = Cannon()
         self.targets = []
         self.score_table = ScoreTable()
@@ -233,13 +233,13 @@ class Manager:
         for _ in range(self.num_of_targets):
             # as score goes up, the radius of the target shrink
             self.targets.append(
-                MovingTargets(rad=randint(
+                MovingTargets(radius=randint(
                     max(1, 30 - 2 * max(0, self.score_table.score())),
                     30 - max(0, self.score_table.score()))
                 )
             )   
             self.targets.append(
-                Target(rad=randint(
+                Target(radius=randint(
                     max(1, 30 - 2 * max(0, self.score_table.score())),
                     30 - max(0, self.score_table.score()))
                 )
@@ -260,7 +260,7 @@ class Manager:
         self.collide()
         self.draw(screen)
 
-        if len(self.targets) == 0 and len(self.balls) == 0:
+        if len(self.targets) == 0 and len(self.shells) == 0:
             self.new_mission()
 
         return done
@@ -278,8 +278,8 @@ class Manager:
                     self.gun.activate()
             elif event.type == pg.MOUSEBUTTONUP:
                 if event.button == 1:
-                    self.balls.append(self.gun.strike())
-                    self.score_table.b_used += 1
+                    self.shells.append(self.gun.strike())
+                    self.score_table.shell_used += 1
         keys = pg.key.get_pressed()
         if keys[pg.K_UP]:
             self.gun.move(-5)
@@ -292,7 +292,7 @@ class Manager:
         '''
         Runs balls', gun's, targets' and score table's drawing method.
         '''
-        for ball in self.balls:
+        for ball in self.shells:
             ball.draw(screen)
         for target in self.targets:
             target.draw(screen)
@@ -304,12 +304,12 @@ class Manager:
         Runs balls' and gun's movement method, removes dead balls.
         '''
         dead_balls = []
-        for i, ball in enumerate(self.balls):
+        for i, ball in enumerate(self.shells):
             ball.move(grav=2)
             if not ball.is_alive:
                 dead_balls.append(i)
         for i in reversed(dead_balls):
-            self.balls.pop(i)
+            self.shells.pop(i)
         for i, target in enumerate(self.targets):
             target.move()
         self.gun.gain()
@@ -320,14 +320,14 @@ class Manager:
         '''
         collisions = []
         targets_c = []
-        for i, ball in enumerate(self.balls):
+        for i, ball in enumerate(self.shells):
             for j, target in enumerate(self.targets):
                 if target.check_collision(ball):
                     collisions.append([i, j])
                     targets_c.append(j)
         targets_c.sort()
         for j in reversed(targets_c):
-            self.score_table.t_destr += 1
+            self.score_table.target_destroyed += 1
             self.targets.pop(j)
 
 def main() -> None:
