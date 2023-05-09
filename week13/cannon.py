@@ -10,6 +10,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 DARK_GREY = (50, 50, 50)
 RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 
 SCREEN_SIZE = (800, 600)
 
@@ -24,6 +25,8 @@ class GameObject:
     
     def draw(self, screen):
         pass  
+
+
 
 class Bomb(GameObject):
     """
@@ -249,6 +252,21 @@ class Cannon(GameObject):
     def get_rect(self):
         return pg.Rect(self.coord[0]-self.tank_base_width//2, self.coord[1]-self.tank_base_height//2, 
                        self.tank_base_width, self.tank_base_height)
+    
+class AICannon(Cannon):
+    '''
+    AI-controlled cannon.
+    '''
+    def init(self, coord=[SCREEN_SIZE[0]//2, SCREEN_SIZE[1]-30], angle=0, max_pow=50, min_pow=10, color=RED):
+        super().__init__(coord,angle=0, max_pow=50, min_pow=10, color=BLUE )
+
+    def ai_aim(self, targets):
+        if targets:
+            # This is a simple example. You could use a more sophisticated algorithm
+            target = random.choice(targets)
+            self.set_angle(target.coord)
+
+    
 
 class Target(GameObject):
     '''
@@ -362,7 +380,7 @@ class Manager:
     '''
     Class that manages events' handling, shell's motion and collision, target creation, etc.
     '''
-    def __init__(self, num_of_targets=1, gravity=2):
+    def __init__(self, num_of_cannons=1, num_of_targets=1, gravity=2):
         self.shell_types = [Shell, PowerfulShell, BigShell]
         self.shell_type_index = 0
         self.shell_type = self.shell_types[0]
