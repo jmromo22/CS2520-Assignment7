@@ -333,20 +333,22 @@ class ScoreTable:
     def __init__(self, target_destroyed=0, shell_used=0):
         self.target_destroyed = target_destroyed
         self.shell_used = shell_used
+        self.hit = 0
         self.font = pg.font.SysFont("dejavusansmono", 25)
 
     def score(self):
         '''
         Score calculation method.
         '''
-        return self.target_destroyed - self.shell_used
+        return self.target_destroyed - self.shell_used - self.hit
 
     def draw(self, screen):
         score_surface = []
         score_surface.append(self.font.render("Destroyed: {}".format(self.target_destroyed), True, WHITE))
         score_surface.append(self.font.render("Shell used: {}".format(self.shell_used), True, WHITE))
+        score_surface.append(self.font.render(f"Hit: {self.hit}", True, WHITE))
         score_surface.append(self.font.render("Total: {}".format(self.score()), True, RED))
-        for i in range(3):
+        for i in range(len(score_surface)):
             screen.blit(score_surface[i], [10, 10+30*i])
 
 
@@ -360,7 +362,7 @@ class Manager:
         self.shell_type = self.shell_types[0]
         self.shells = []
 
-        self.bomb_chance = 0.01
+        self.bomb_chance = 0.005
         self.bombs: list[Bomb] = []
 
         self.gun = Cannon()
@@ -508,6 +510,7 @@ class Manager:
         bombs_collide = []
         for i, bomb in enumerate(self.bombs):
             if bomb.check_collision(self.gun.get_rect()):
+                self.score_table.hit += 1
                 bombs_collide.append(bomb)
         for bomb in bombs_collide:
             self.bombs.remove(bomb)
