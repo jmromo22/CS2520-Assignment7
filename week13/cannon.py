@@ -29,18 +29,24 @@ class Bomb(GameObject):
     """
     The bomb class, drop straight down
     """
-    def __init__(self, coord, velocity, radius=10, gravity=2):
+    def __init__(self, coord, velocity=None, radius=10, gravity=2):
         """
         Constructor Method. Initializes bomb's parameters and initial values.
         """
         self.rect = None
         self.coord = coord
-        self.velocity = velocity
         self.radius = radius
         self.gravity = 2
+        if velocity is None:
+            self.velocity = [randint(-2, 2), randint(-1, 2)]
+        else:
+            self.velocity = velocity
 
     def move(self):
         self.coord[1] += self.gravity
+
+        self.coord[0] += self.velocity[0]
+        self.coord[1] += self.velocity[1]
 
     def draw(self, screen):
         """
@@ -395,12 +401,14 @@ class Manager:
         # spawn
         for target in self.targets:
             if random() < self.bomb_chance:
-                self.bombs.append(Bomb([target.coord[0], target.coord[1]], [0, 0]))
+                self.bombs.append(Bomb([target.coord[0], target.coord[1]]))
 
         # destroy if below screen
         bombs_destroy = []
         for bomb in self.bombs:
-            if bomb.coord[1] > SCREEN_SIZE[1]:
+            if bomb.coord[1] > SCREEN_SIZE[1] or \
+                    bomb.coord[0] - bomb.radius < 0 or \
+                    bomb.coord[0] + bomb.radius > SCREEN_SIZE[0]:
                 bombs_destroy.append(bomb)
         for bomb in bombs_destroy:
             self.bombs.remove(bomb)
