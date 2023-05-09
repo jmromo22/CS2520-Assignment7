@@ -441,6 +441,8 @@ class Manager:
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     self.switch_shell_type()
+                elif event.key == pg.K_q:
+                    done = True
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]:
             self.gun.move(-10)
