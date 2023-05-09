@@ -1,7 +1,7 @@
 import numpy as np
 import pygame as pg
 import math
-from random import randint, gauss
+from random import randint, random
 
 pg.init()
 pg.font.init()
@@ -25,6 +25,34 @@ class GameObject:
     def draw(self, screen):
         pass  
 
+class Bomb(GameObject):
+    """
+    The bomb class, drop straight down
+    """
+    def __init__(self, coord, velocity, radius=10, gravity=2):
+        """
+        Constructor Method. Initializes bomb's parameters and initial values.
+        """
+        self.rect = None
+        self.coord = coord
+        self.velocity = velocity
+        self.radius = radius
+        self.gravity = 2
+
+    def move(self):
+        self.coord[1] += self.gravity
+
+    def draw(self, screen):
+        """
+        Draws bomb on screen
+        """
+        self.rect = pg.draw.circle(screen, BLACK, self.coord, self.radius)
+    
+    def check_collision(self, tank_rect):
+        '''
+        Checks whether the bombs bumps into tank.
+        '''
+        return self.rect.colliderect(tank_rect) if self.rect is not None else False
 
 class Shell(GameObject):
     '''
@@ -133,6 +161,7 @@ class Cannon(GameObject):
         2: (200, 200, 200),
         3: (255, 255, 255)
     }
+    tank_base_width, tank_base_height = 50, 30
 
     def __init__(self, coord=[SCREEN_SIZE[0]//2, SCREEN_SIZE[1]-30], angle=0, max_pow=50, min_pow=10, color=RED):
         '''
@@ -189,10 +218,10 @@ class Cannon(GameObject):
         '''
         # draw base of the tank
         cannon_base_pos = self.coord
-        tank_base_width, tank_base_height = 50, 30
+        
         pg.draw.rect(screen, (255, 255, 255), 
-                     (cannon_base_pos[0]-tank_base_width//2, cannon_base_pos[1], 
-                      tank_base_width, tank_base_height)
+                     (cannon_base_pos[0]-self.tank_base_width//2, cannon_base_pos[1], 
+                      self.tank_base_width, self.tank_base_height)
         )
 
         # draw gun
@@ -210,6 +239,10 @@ class Cannon(GameObject):
         tank_ball_radius = 15
         ball_color = self.shell_type_dict[shell_type_index]
         pg.draw.circle(screen, ball_color, (cannon_base_pos[0], cannon_base_pos[1]+5), tank_ball_radius)
+
+    def get_rect(self):
+        return pg.Rect(self.coord[0]-self.tank_base_width//2, self.coord[1]-self.tank_base_height//2, 
+                       self.tank_base_width, self.tank_base_height)
 
 class Target(GameObject):
     '''
@@ -327,8 +360,11 @@ class Manager:
         self.shell_type = self.shell_types[0]
         self.shells = []
 
+        self.bomb_chance = 0.01
+        self.bombs: list[Bomb] = []
+
         self.gun = Cannon()
-        self.targets = []
+        self.targets: list[Target] = []
         self.score_table = ScoreTable()
         self.num_of_targets = num_of_targets
         self.gravity = gravity
@@ -349,6 +385,23 @@ class Manager:
                     )
                 )
 
+    def bomb_process(self):
+        """
+        Randomly drop bomb based on bomb chance and 
+        also process bomb going out of screen
+        """
+        # spawn
+        for target in self.targets:
+            if random() < self.bomb_chance:
+                self.bombs.append(Bomb([target.coord[0], target.coord[1]], [0, 0]))
+
+        # destroy if below screen
+        bombs_destroy = []
+        for bomb in self.bombs:
+            if bomb.coord[1] > SCREEN_SIZE[1]:
+                bombs_destroy.append(bomb)
+        for bomb in bombs_destroy:
+            self.bombs.remove(bomb)
 
     def process(self, events, screen):
         '''
@@ -363,6 +416,7 @@ class Manager:
         self.move()
         self.collide()
         self.draw(screen)
+        self.bomb_process()
 
         if len(self.targets) == 0 and len(self.shells) == 0:
             self.new_mission()
@@ -409,6 +463,8 @@ class Manager:
             shell.draw(screen)
         for target in self.targets:
             target.draw(screen)
+        for bomb in self.bombs:
+            bomb.draw(screen)
         self.gun.draw(screen, self.shell_type_index)
         self.score_table.draw(screen)
 
@@ -425,12 +481,15 @@ class Manager:
             self.shells.pop(i)
         for i, target in enumerate(self.targets):
             target.move()
+        for bomb in self.bombs:
+            bomb.move()
         self.gun.gain()
 
     def collide(self):
         '''
         Checks whether shell bump into targets, sets shell' alive trigger.
         '''
+        # shell target collision
         collisions: list[list[int]] = []
         targets_collide: list[int] = []
         for i, shell in enumerate(self.shells):
@@ -443,6 +502,14 @@ class Manager:
             self.score_table.target_destroyed += 1
             self.targets.pop(target)
 
+        # bomb tank collision
+        bombs_collide = []
+        for i, bomb in enumerate(self.bombs):
+            if bomb.check_collision(self.gun.get_rect()):
+                bombs_collide.append(bomb)
+        for bomb in bombs_collide:
+            self.bombs.remove(bomb)
+        
 def main() -> None:
     screen = pg.display.set_mode(SCREEN_SIZE)
     pg.display.set_caption("The gun of Khiryanov")
