@@ -263,6 +263,9 @@ class AICannon(Cannon):
     def init(self, coord=None, angle=0, max_pow=50, min_pow=10, color=BLUE):
         super().__init__(coord, angle, max_pow, min_pow, color)
     
+    def move():
+        pass
+    
 
 class Target(GameObject):
     '''
