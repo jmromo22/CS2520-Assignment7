@@ -172,11 +172,14 @@ class Cannon(GameObject):
     }
     tank_base_width, tank_base_height = 50, 30
 
-    def __init__(self, coord=[SCREEN_SIZE[0]//2, SCREEN_SIZE[1]-30], angle=0, max_pow=50, min_pow=10, color=RED):
+    def __init__(self, coord=None, angle=0, max_pow=50, min_pow=10, color=RED):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
         '''
-        self.coord = coord
+        if coord is None:
+            self.coord = [SCREEN_SIZE[0]//2, SCREEN_SIZE[1]-30]
+        else:
+            self.coord = coord
         self.angle = angle
         self.max_pow = max_pow
         self.min_pow = min_pow
@@ -257,15 +260,8 @@ class AICannon(Cannon):
     '''
     AI-controlled cannon.
     '''
-    def init(self, coord=[SCREEN_SIZE[0]//2, SCREEN_SIZE[1]-30], angle=0, max_pow=50, min_pow=10, color=RED):
-        super().__init__(coord,angle=0, max_pow=50, min_pow=10, color=BLUE )
-
-    def ai_aim(self, targets):
-        if targets:
-            # This is a simple example. You could use a more sophisticated algorithm
-            target = random.choice(targets)
-            self.set_angle(target.coord)
-
+    def init(self, coord=None, angle=0, max_pow=50, min_pow=10, color=BLUE):
+        super().__init__(coord, angle, max_pow, min_pow, color)
     
 
 class Target(GameObject):
@@ -380,7 +376,7 @@ class Manager:
     '''
     Class that manages events' handling, shell's motion and collision, target creation, etc.
     '''
-    def __init__(self, num_of_cannons=1, num_of_targets=1, gravity=2):
+    def __init__(self, num_of_targets=1, gravity=2):
         self.shell_types = [Shell, PowerfulShell, BigShell]
         self.shell_type_index = 0
         self.shell_type = self.shell_types[0]
@@ -390,6 +386,8 @@ class Manager:
         self.bombs: list[Bomb] = []
 
         self.gun = Cannon()
+        self.npc = AICannon()
+
         self.targets: list[Target] = []
         self.score_table = ScoreTable()
         self.num_of_targets = num_of_targets
@@ -496,6 +494,7 @@ class Manager:
         for bomb in self.bombs:
             bomb.draw(screen)
         self.gun.draw(screen, self.shell_type_index)
+        self.npc.draw(screen, self.shell_type_index)
         self.score_table.draw(screen)
 
     def move(self):
