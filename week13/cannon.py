@@ -263,8 +263,13 @@ class AICannon(Cannon):
     def init(self, coord=None, angle=0, max_pow=50, min_pow=10, color=BLUE):
         super().__init__(coord, angle, max_pow, min_pow, color)
     
-    def move():
-        pass
+    def move(self):
+        '''
+        AI moving cannon on its own
+        '''
+        increment = randint(-2, 2)
+        if (self.coord[0] > 30 or increment > 0) and (self.coord[0] < SCREEN_SIZE[0] - 30 or increment < 0):
+            self.coord[0] += increment
     
 
 class Target(GameObject):
@@ -516,6 +521,7 @@ class Manager:
         for bomb in self.bombs:
             bomb.move()
         self.gun.gain()
+        self.npc.move()
 
     def collide(self):
         '''
