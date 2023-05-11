@@ -260,17 +260,54 @@ class AICannon(Cannon):
     '''
     AI-controlled cannon.
     '''
-    def init(self, coord=None, angle=0, max_pow=50, min_pow=10, color=BLUE):
+    def __init__(self, coord=None, angle=0, max_pow=50, min_pow=10, color=BLUE):
         super().__init__(coord, angle, max_pow, min_pow, color)
+        self.x_velocity = randint(-2, +2)
+        self.y_velocity = randint(-2, +2)
     
     def move(self):
         '''
         AI moving cannon on its own
         '''
-        increment = randint(-2, 2)
-        if (self.coord[0] > 30 or increment > 0) and (self.coord[0] < SCREEN_SIZE[0] - 30 or increment < 0):
-            self.coord[0] += increment
+        self.coord[0] += self.x_velocity
+        self.coord[1] += self.y_velocity
+
+        # if hit border, change velocity
+        if self.coord[0] > SCREEN_SIZE[0] or self.coord[0] < 0:
+            self.x_velocity *= -1
+        if self.coord[1] > SCREEN_SIZE[1] or self.coord[1] < 0:
+            self.y_velocity *= -1
+
     
+    def activate(self):
+        '''
+        Activates gun's charge.
+        '''
+        self.active = True
+
+    def gain(self, increment=1):
+        '''
+        Increases current gun charge power.
+        '''
+        if self.active and self.pow < self.max_pow:
+            self.pow += increment
+
+    def strike(self, shell_type):
+        '''
+        Creates shell, according to gun's direction and current charge power.
+        '''
+        vel = self.pow
+        angle = self.angle
+        shell = shell_type(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
+        self.pow = self.min_pow
+        self.active = False
+        return shell
+    
+    def set_angle(self, target_pos):
+        '''
+        Sets gun's direction to target position.
+        '''
+        self.angle = np.arctan2(target_pos[1] - self.coord[1], target_pos[0] - self.coord[0])
 
 class Target(GameObject):
     '''
@@ -462,12 +499,18 @@ class Manager:
         Handles events from keyboard, mouse, etc.
         '''
         done = False
+        counter_interval = 1
         for event in events:
             if event.type == pg.QUIT:
                 done = True
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     self.gun.activate()
+                    counter = randint(0, 2)
+                    print(counter)
+                    if counter == counter_interval:
+                        self.npc.activate()
+                        self.shells.append(self.npc.strike(self.shell_type))
             elif event.type == pg.MOUSEBUTTONUP:
                 if event.button == 1:
                     self.shells.append(self.gun.strike(self.shell_type))
@@ -521,6 +564,7 @@ class Manager:
         for bomb in self.bombs:
             bomb.move()
         self.gun.gain()
+        self.npc.gain(5)
         self.npc.move()
 
     def collide(self):
