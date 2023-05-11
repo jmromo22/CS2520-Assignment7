@@ -77,6 +77,7 @@ class Shell(GameObject):
         Constructor method. Initializes shell's parameters and initial values.
         :self, coord, velocity, radius, color
         '''
+        self.rect = None
         self.coord = coord
         self.velocity = velocity
         if color == None:
@@ -84,6 +85,7 @@ class Shell(GameObject):
         self.color = color
         self.radius = radius
         self.is_alive = True
+        self.is_fired = False
 
     def check_corners(self, refl_ort=0.8, refl_par=0.9):
         '''
@@ -112,6 +114,8 @@ class Shell(GameObject):
         self.check_corners()
         if self.velocity[0]**2 + self.velocity[1]**2 < 2**2 and self.coord[1] > SCREEN_SIZE[1] - 2*self.radius:
             self.is_alive = False
+        if self.velocity[0]**3 + self.velocity[1]**3 < 3**3 and self.coord[1] > SCREEN_SIZE[1] - 2*self.radius:
+            self.is_fired = True
 
     def draw(self, screen):
         '''
@@ -204,6 +208,7 @@ class Cannon(GameObject):
         self.color = color
         self.active = False
         self.pow = min_pow
+        self.radius = 30
     
     def activate(self):
         '''
@@ -275,6 +280,15 @@ class Cannon(GameObject):
         tank_ball_radius = 15
         ball_color = self.shell_type_dict[shell_type_index]
         pg.draw.circle(screen, ball_color, (cannon_base_pos[0], cannon_base_pos[1]+5), tank_ball_radius)
+
+    def check_collision(self, shell):
+        '''
+        Checks whether the shell bumps into cannon.
+        :self, shell
+        '''
+        dist = sum([(self.coord[i] - shell.coord[i])**2 for i in range(2)])**0.5
+        min_dist = self.radius + shell.radius
+        return dist <= min_dist
 
     def get_rect(self):
         return pg.Rect(self.coord[0]-self.tank_base_width//2, self.coord[1]-self.tank_base_height//2, 
@@ -653,10 +667,16 @@ class Manager:
                 if target.check_collision(shell):
                     collisions.append([i, j])
                     targets_collide.append(j)
+                    
         targets_collide.sort()
         for target in reversed(targets_collide):
             self.score_table.target_destroyed += 1
             self.targets.pop(target)
+
+        for i, shell in enumerate(self.shells):
+            if shell.is_fired and self.gun.check_collision(shell):
+                self.shells.pop(i)
+                self.score_table.hit += 1
 
         # bomb tank collision
         bombs_collide = []
@@ -668,6 +688,9 @@ class Manager:
             self.bombs.remove(bomb)
         
 def main() -> None:
+    '''
+    Main function to initialize the screen and game runtime.
+    '''
     screen = pg.display.set_mode(SCREEN_SIZE)
     pg.display.set_caption("The gun of Khiryanov")
 
