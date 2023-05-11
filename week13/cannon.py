@@ -30,11 +30,13 @@ class GameObject:
 
 class Bomb(GameObject):
     """
-    The bomb class, drop straight down
+    The bomb class, drops straight down
+    :GameObject
     """
     def __init__(self, coord, velocity=None, radius=10, gravity=2):
         """
         Constructor Method. Initializes bomb's parameters and initial values.
+        :self, coord, velocity, radius, gravity
         """
         self.rect = None
         self.coord = coord
@@ -54,22 +56,26 @@ class Bomb(GameObject):
     def draw(self, screen):
         """
         Draws bomb on screen
+        :self, screen
         """
         self.rect = pg.draw.circle(screen, BLACK, self.coord, self.radius)
     
     def check_collision(self, tank_rect):
         '''
-        Checks whether the bombs bumps into tank.
+        Checks whether the bombs bumps into tank
+        :self, tank_rect
         '''
         return self.rect.colliderect(tank_rect) if self.rect is not None else False
 
 class Shell(GameObject):
     '''
-    The shell class. Creates a shell, controls it's movement and implement it's rendering.
+    The shell class. Creates a shell, controls its movement and implement its rendering.
+    :GameObject
     '''
     def __init__(self, coord, velocity, radius=20, color=None):
         '''
         Constructor method. Initializes shell's parameters and initial values.
+        :self, coord, velocity, radius, color
         '''
         self.coord = coord
         self.velocity = velocity
@@ -82,6 +88,7 @@ class Shell(GameObject):
     def check_corners(self, refl_ort=0.8, refl_par=0.9):
         '''
         Reflects shell's velocity when shell bumps into the screen corners. Implemetns inelastic rebounce.
+        :self, refl_ort, refl_par
         '''
         for i in range(2):
             if self.coord[i] < self.radius:
@@ -97,6 +104,7 @@ class Shell(GameObject):
         '''
         Moves the shell according to it's velocity and time step.
         Changes the shell's velocity due to gravitational force.
+        :self, time, gravity
         '''
         self.velocity[1] += gravity
         for i in range(2):
@@ -108,16 +116,20 @@ class Shell(GameObject):
     def draw(self, screen):
         '''
         Draws the shell on appropriate surface.
+        :self, screen
         '''
         pg.draw.circle(screen, self.color, self.coord, self.radius)
 
 class PowerfulShell(Shell):
     """
     Powerful Shell where it isn't effected by gravity
+    :Shell
+
     """
     def __init__(self, coord, velocity, radius=20, color=None, alive_max=10):
         '''
         Constructor method. Initializes shell's parameters and initial values.
+        :self, coord, velocity, radius, color, alive_max
         '''
         super().__init__(coord, velocity, radius, color)
         self.alive_max = alive_max * 5
@@ -127,6 +139,7 @@ class PowerfulShell(Shell):
         '''
         Moves the shell according to it's velocity and time step.
         Changes the shell's velocity due to gravitational force.
+        :self, time, gravity
         '''
         for i in range(2):
             self.coord[i] += time * self.velocity[i]
@@ -138,10 +151,12 @@ class PowerfulShell(Shell):
 class BigShell(Shell):
     """
     Big Shell but high gravity
+    :Shell
     """
     def __init__(self, coord, velocity, radius=50, color=None, alive_max=10):
         '''
         Constructor method. Initializes shell's parameters and initial values.
+        :self, coord, velocity, radius, color, alive_max
         '''
         super().__init__(coord, velocity, radius, color)
         self.alive_max = alive_max * 5
@@ -151,6 +166,7 @@ class BigShell(Shell):
         '''
         Moves the shell according to it's velocity and time step.
         Changes the shell's velocity due to gravitational force.
+        :self, time, gravity, gravity_multiplier
         '''
         self.velocity[1] += gravity * gravity_multiplier
         for i in range(2):
@@ -163,6 +179,7 @@ class BigShell(Shell):
 class Cannon(GameObject):
     '''
     Cannon class. Manages it's renderring, movement and striking.
+    :GameObject
     '''
     shell_type_dict = {
         0: (100, 100, 100),
@@ -175,6 +192,7 @@ class Cannon(GameObject):
     def __init__(self, coord=None, angle=0, max_pow=50, min_pow=10, color=RED):
         '''
         Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
+        :self, coord, angle, max_pow, min_pow, color
         '''
         if coord is None:
             self.coord = [SCREEN_SIZE[0]//2, SCREEN_SIZE[1]-30]
@@ -190,12 +208,14 @@ class Cannon(GameObject):
     def activate(self):
         '''
         Activates gun's charge.
+        :self
         '''
         self.active = True
 
     def gain(self, increment=1):
         '''
         Increases current gun charge power.
+        :self, increment
         '''
         if self.active and self.pow < self.max_pow:
             self.pow += increment
@@ -203,6 +223,7 @@ class Cannon(GameObject):
     def strike(self, shell_type):
         '''
         Creates shell, according to gun's direction and current charge power.
+        :self, shell_type
         '''
         vel = self.pow
         angle = self.angle
@@ -214,12 +235,14 @@ class Cannon(GameObject):
     def set_angle(self, target_pos):
         '''
         Sets gun's direction to target position.
+        :self, target_pos
         '''
         self.angle = np.arctan2(target_pos[1] - self.coord[1], target_pos[0] - self.coord[0])
 
     def move(self, increment):
         '''
         Changes horizontal position of the gun.
+        :self, increment
         '''
         if (self.coord[0] > 30 or increment > 0) and (self.coord[0] < SCREEN_SIZE[0] - 30 or increment < 0):
             self.coord[0] += increment
@@ -227,6 +250,7 @@ class Cannon(GameObject):
     def draw(self, screen, shell_type_index):
         '''
         Draws the gun on the screen.
+        :self, screen, shell_type_index
         '''
         # draw base of the tank
         cannon_base_pos = self.coord
@@ -259,6 +283,7 @@ class Cannon(GameObject):
 class AICannon(Cannon):
     '''
     AI-controlled cannon.
+    :Cannon
     '''
     def __init__(self, coord=None, angle=0, max_pow=50, min_pow=10, color=BLUE):
         super().__init__(coord, angle, max_pow, min_pow, color)
@@ -268,6 +293,7 @@ class AICannon(Cannon):
     def move(self):
         '''
         AI moving cannon on its own
+        :self
         '''
         self.coord[0] += self.x_velocity
         self.coord[1] += self.y_velocity
@@ -282,12 +308,14 @@ class AICannon(Cannon):
     def activate(self):
         '''
         Activates gun's charge.
+        :self
         '''
         self.active = True
 
     def gain(self, increment=1):
         '''
         Increases current gun charge power.
+        :self, increment
         '''
         if self.active and self.pow < self.max_pow:
             self.pow += increment
@@ -295,6 +323,7 @@ class AICannon(Cannon):
     def strike(self, shell_type):
         '''
         Creates shell, according to gun's direction and current charge power.
+        :self, shell_type
         '''
         vel = self.pow
         angle = self.angle
@@ -306,16 +335,19 @@ class AICannon(Cannon):
     def set_angle(self, target_pos):
         '''
         Sets gun's direction to target position.
+        :self, target_pos
         '''
         self.angle = np.arctan2(target_pos[1] - self.coord[1], target_pos[0] - self.coord[0])
 
 class Target(GameObject):
     '''
     Target class. Creates target, manages it's rendering and collision with a shell event.
+    :GameObject
     '''
     def __init__(self, coord=None, color=None, radius=30):
         '''
         Constructor method. Sets coordinate, color and radius of the target.
+        :self, coord, color, radius
         '''
         if coord == None:
             coord = [randint(radius, SCREEN_SIZE[0] - radius), randint(radius, SCREEN_SIZE[1] - radius)]
@@ -329,6 +361,7 @@ class Target(GameObject):
     def check_collision(self, shell):
         '''
         Checks whether the shell bumps into target.
+        :self, shell
         '''
         dist = sum([(self.coord[i] - shell.coord[i])**2 for i in range(2)])**0.5
         min_dist = self.radius + shell.radius
@@ -337,6 +370,7 @@ class Target(GameObject):
     def draw(self, screen):
         '''
         Draws the target on the screen
+        :self, screen
         '''
         pg.draw.circle(screen, self.color, self.coord, self.radius)
         pg.draw.circle(screen, WHITE, self.coord, self.radius * 0.7)
@@ -347,17 +381,29 @@ class Target(GameObject):
     def move(self):
         """
         This type of target can't move at all.
-        :return: None
+        :self
         """
         pass
 
 class MovingTargets(Target):
+    '''
+    MovingTargets class. Creates a moving version of the Target class.
+    :Target
+    '''
     def __init__(self, coord=None, color=None, radius=30):
+        '''
+        Constructor method. Sets coordinate, color and radius of the target.
+        :self, coord, color, radius
+        '''
         super().__init__(coord, color, radius)
         self.x_velocity = randint(-2, +2)
         self.y_velocity = randint(-2, +2)
     
     def move(self):
+        '''
+        Target moving in a random direction until hits border.
+        :self
+        '''
         self.coord[0] += self.x_velocity
         self.coord[1] += self.y_velocity
 
@@ -368,7 +414,15 @@ class MovingTargets(Target):
             self.y_velocity *= -1
 
 class CircularTargets(Target):
+    '''
+    CircularTargets class. Creates a circular moving version of the Target class.
+    :Target
+    '''
     def __init__(self, coord=None, color=None, radius=20, circular_radius=None, velocity=None, clockwise=None):
+        '''
+        Constructor method. Sets coordinate, color, velocity and radius of the target.
+        :self, coord, color, radius, circular_radius, velocity, clockwise
+        '''
         super().__init__(coord, color, radius)
         self.x = self.coord[0]
         self.y = self.coord[1]
@@ -387,6 +441,10 @@ class CircularTargets(Target):
             self.clockwise = clockwise
     
     def move(self):
+        '''
+        Target moving in a circle around a center.
+        :self
+        '''
         self.coord[0] = self.x + math.cos(math.pi * self.target_angle) * self.circular_radius
         self.coord[1] = self.y + math.sin(math.pi * self.target_angle) * self.circular_radius
         self.target_angle += self.velocity * 0.03 * (1 if self.clockwise else -1)
@@ -404,10 +462,15 @@ class ScoreTable:
     def score(self):
         '''
         Score calculation method.
+        :self
         '''
         return self.target_destroyed - self.shell_used - self.hit
 
     def draw(self, screen):
+        '''
+        Method that raws a score screen on the top left of the user's screen.
+        :self, screen
+        '''
         score_surface = []
         score_surface.append(self.font.render("Destroyed: {}".format(self.target_destroyed), True, WHITE))
         score_surface.append(self.font.render("Shell used: {}".format(self.shell_used), True, WHITE))
@@ -442,6 +505,7 @@ class Manager:
     def new_mission(self):
         '''
         Adds new targets.
+        :self
         '''
         target_types = [Target, MovingTargets, CircularTargets]
         for _ in range(self.num_of_targets):
@@ -458,6 +522,7 @@ class Manager:
         """
         Randomly drop bomb based on bomb chance and 
         also process bomb going out of screen
+        :self
         """
         # spawn
         for target in self.targets:
@@ -477,6 +542,7 @@ class Manager:
     def process(self, events, screen):
         '''
         Runs all necessary method for each iteration. Adds new targets, if previous are destroyed.
+        :self, events, screen
         '''
         done = self.handle_events(events)
 
@@ -497,6 +563,7 @@ class Manager:
     def handle_events(self, events):
         '''
         Handles events from keyboard, mouse, etc.
+        :self, events
         '''
         done = False
         counter_interval = 1
@@ -507,9 +574,9 @@ class Manager:
                 if event.button == 1:
                     self.gun.activate()
                     counter = randint(0, 2)
-                    print(counter)
                     if counter == counter_interval:
                         self.npc.activate()
+                        self.npc.set_angle([0,0])
                         self.shells.append(self.npc.strike(self.shell_type))
             elif event.type == pg.MOUSEBUTTONUP:
                 if event.button == 1:
@@ -529,12 +596,17 @@ class Manager:
         return done
     
     def switch_shell_type(self):
+        '''
+        Method that switches the type of the shell loaded from cannon.
+        :self
+        '''
         self.shell_type_index = (self.shell_type_index + 1) % len(self.shell_types)
         self.shell_type = self.shell_types[self.shell_type_index]
 
     def draw(self, screen):
         '''
         Runs shell', gun's, targets' and score table's drawing method.
+        :self, screen
         '''
         screen.fill(DARK_GREY) # fill background
 
@@ -551,6 +623,7 @@ class Manager:
     def move(self):
         '''
         Runs shells' and gun's movement method, removes dead shells.
+        :self
         '''
         dead_shells = []
         for i, shell in enumerate(self.shells):
@@ -570,6 +643,7 @@ class Manager:
     def collide(self):
         '''
         Checks whether shell bump into targets, sets shell' alive trigger.
+        :self
         '''
         # shell target collision
         collisions: list[list[int]] = []
