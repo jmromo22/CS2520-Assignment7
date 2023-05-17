@@ -5,6 +5,11 @@ Manager:Jesus Romo
 Tester:Benen Kim
 Developer:Yitian Huang
 
+The Extra Credit 
+Youtube Video Presentation 
+
+https://youtu.be/BSGw1Puxsiw
+
 The Cannon Game 
 
 Use modular programming and OOP for this assignment. Divide your code into separate, well-defined modules that perform specific tasks or represent specific components of your project. Each module should be self-contained and have a clear interface for interaction with other modules.
